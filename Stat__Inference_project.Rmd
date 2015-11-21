@@ -4,6 +4,8 @@ author: "Patrick Close"
 date: "21 November 2015"
 output: pdf_document
 ---
+Summary: Investigate the exponential distribution by simulating 40 exponential distributions with lambda = 0.2 in a Monte Carlo simulation with 1000 runs.  Use the resulting distribution to compare the mean and variance of the simulation to the theoretically expected mean and variance.  Then observe the effect of the Central Limit Theorem by observing that the resulting distribution of simulated means is approximately normal (Gaussian).
+
 Step1: simulate the distribution of means of 40 exponential distributions with mean = 1/lambda & stddev = 1/lambda
 ```{r, echo=TRUE}
 nosim <- 1000
