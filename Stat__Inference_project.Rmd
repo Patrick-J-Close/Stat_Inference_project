@@ -16,11 +16,16 @@ set.seed(8180)
 #create nosim x n matrix to hold simulated random variables
 simdata <- matrix(rexp(nosim * n, rate = lambda), nosim, n)
 sim_means <- rowMeans(simdata)
-#
+```
+
+```{r, fig.width=4, fig.height=4}
 #Plot distribution of simulation averages:
 hist(sim_means, col = "red", main = "Distribution of averages of exponential 
      distribution samples, lambda = 0.2")
 ```
+`
+`
+
 Compare simulated and theoretical means
 ```{r, echo=TRUE}
 #create matrix to store simulated and theoretical means
@@ -39,8 +44,7 @@ print(round(df_summary,3))
 As observed the variance of the simulation is close to the theoretically expected variance
 
 Step3: show the variable approximately follows a normal distribution
-
-```{r, echo=TRUE}
+```{r, fig.width=3,fig.height=3}
 library(ggplot2)
 sim_means_g <- data.frame(sim_means)
 g <- ggplot(sim_means_g, aes(x=sim_means))
@@ -48,16 +52,20 @@ g <- g + geom_histogram(aes(y=..density..), col = "black", fill = "red")
 g <- g + geom_density(col = "blue", size = 1)
 print (g)
 ```
+
 The shape of the curve is approximately Gaussian
 
-construct simulated confidence interval and compare to theoretical CI
+
+
+Construct simulated confidence interval and compare to theoretical CI
 ```{r, echo=TRUE}
 sim_CI <- mean(sim_means) + c(-1,1)*1.96*sd(sim_means)/sqrt(n)
 theo_CI <- 1/lambda + c(-1,1)*1.96*((1/lambda^2)/n)/sqrt(n)
 CI_summary <- data.frame(rbind(sim_CI, theo_CI), row.names = c("simulated", "theoretical"))
 colnames(CI_summary) <- c("Lower Bound", "Upper Bound")
 print(CI_summary)
-#
+```
+```{r, fig.width=4,fig.height=4}
 #normal quintile plot
 qqnorm(sim_means); qqline(sim_means)
 ```
