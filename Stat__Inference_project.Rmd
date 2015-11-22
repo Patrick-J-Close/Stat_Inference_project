@@ -23,8 +23,6 @@ sim_means <- rowMeans(simdata)
 hist(sim_means, col = "red", main = "Distribution of averages of exponential 
      distribution samples, lambda = 0.2")
 ```
-`
-`
 
 Compare simulated and theoretical means
 ```{r, echo=TRUE}

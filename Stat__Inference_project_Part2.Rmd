@@ -1,0 +1,109 @@
+---
+title: "Stat_Inference_project_Part2"
+author: "Patrick Close"
+date: "November 22, 2015"
+output: pdf_document
+---
+Summary: Use the R data set "ToothGrowth" to run exploratory data analysis and test for significance of the two independent variables "dose" & "supp" on the dependent variable "len".
+
+Step 1: perform exploratory data analysis to understand the dataset
+```{r, echo=TRUE,tidy=FALSE}
+library(datasets)
+library(ggplot2)
+data("ToothGrowth")
+#
+str(ToothGrowth)
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+#overall summary:
+summary(ToothGrowth)
+#summary grouped by supplement and dose
+by(ToothGrowth$len, INDICES = list(ToothGrowth$supp, ToothGrowth$dose),summary)
+```
+
+Plot the dependent variable "len" vs independent variable "dose"
+```{r, fig.width=4,fig.height=4,tidy=FALSE}
+g1 <- ggplot(aes(x=dose,y=len), data=ToothGrowth) + geom_boxplot(aes(fill=dose))
+print(g1)
+```
+
+Plot the dependent variable "len" vs the independent variable "supp"
+```{r, fig.width=4, fig.height=4,tidy=FALSE}
+g2 <- ggplot(aes(x=supp, y=len), data = ToothGrowth) + geom_boxplot(aes(fill=supp))
+print(g2)
+```
+
+Plot "supp" at the three dose levels
+```{r, fig.width=4,fig.height=4,tidy=FALSE}
+g3 <- ggplot(aes(x=supp, y=len), data = ToothGrowth) + geom_boxplot(aes(fill=supp))
+g3 <- g3 + facet_wrap(~dose)
+print(g3)
+```
+
+It appears there increasing dose has a directly positive relationship with len, but the relationship between dose and supp is less clear.  
+
+Step 2: use hypothesis testing to test for significance of the independent variables on dependent variable
+```{r,echo=TRUE,tidy=FALSE}
+t.test(len ~ supp, data = ToothGrowth)
+```
+
+with p > 0.05 we fail to reject the null hypothesis and cannot conclude the difference in response of len by supp is significantly different than zero (also note the CI contains zero) 
+
+Next create sub levels of dose to be tested
+```{r, echo=TRUE,tidy=FALSE}
+#create three dose sub-level pairs and test for dose significance
+t_tests <- list()
+doses <- c("0.5","1","2")
+for (dL in doses){
+     for(dH in doses){
+          if (dL < dH){
+               ToothGrowth_sub <- subset(ToothGrowth, dose %in% c(dL,dH))
+               t <- t.test(len ~ dose, data = ToothGrowth_sub)
+               test_doses <- paste(dL,"-",dH)
+               t_tests <- rbind(t_tests, list(test_doses=test_doses, p.value = t$p.value))
+          }
+     }
+}
+print(t_tests)
+```
+
+All three levels of dose yield a p-value < 0.05 and CIs do not contain zero, therefore we can reject the null hypothesis and conclude increasing dose levels have a significant effect on tooth length. 
+
+Test for significance between doses for each supplement
+```{r,echo=TRUE,tidy=FALSE}
+#create subsets of supp within dose and test for significance
+t_tests <- NULL
+supps <- c("OJ","VC")
+for (dL in doses){
+     for(dH in doses){
+          if (dL < dH){
+               ToothGrowth_sub <- subset(ToothGrowth, dose %in% c(dL,dH))
+               for(s in supps){
+                    ToothGrowth_sub_s <- subset(ToothGrowth_sub, supp %in% s)
+                    t <- t.test(len ~ dose, data = ToothGrowth_sub_s)
+                    test_doses <- paste(dL,"-",dH,s)
+                    t_tests <- rbind(t_tests, list(test_doses=test_doses, p.value = t$p.value))
+               }
+          }
+     }
+}
+print(t_tests)
+```
+
+When stratifying by supplement type the dose dependent responses maintain significance, implying the overall effect between dose and length is not driven by one supplement.  
+
+Conclusions:
+
+1. Supplement does not have a significant effect on tooth length
+
+2. Dose does have a significant effect on tooth length
+
+Assumptions: 
+
+1. The experiment was randomized in its allocation of guinea pigs to different dose level categories and supplement.
+
+2. The guinea pigs used in the experiment are representative of the entire population of guinea pigs, allowing inference about the population from this sample.
+
+3. The two guinea pig groups studied are independent. 
+
+4. The variances are assumed to be different for the two groups being compared.
+
